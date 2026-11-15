@@ -128,6 +128,16 @@ class TestDbBackup(common.TransactionCase):
         generated_backup = [f for f in os.listdir(rec_id.folder) if f >= filename]
         self.assertEqual(1, len(generated_backup))
 
+    def test_action_backup_local_list_db_disabled_not_empty(self):
+        """It should write a non-empty file when list_db is disabled"""
+        rec_id = self.new_record("local")
+        filename = rec_id.filename(datetime.now())
+        with patch.dict(tools.config.options, {"list_db": False}):
+            rec_id.action_backup()
+        generated_backup = [f for f in os.listdir(rec_id.folder) if f >= filename]
+        path = os.path.join(rec_id.folder, generated_backup[0])
+        self.assertGreater(os.path.getsize(path), 0)
+
     def test_action_backup_local_cleanup(self):
         """Backup local database and cleanup old databases"""
         rec_id = self.new_record("local")
